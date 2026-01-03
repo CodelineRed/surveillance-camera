@@ -12,7 +12,7 @@ sudo apt-get install python3-paramiko python3-moviepy python3-opencv python3-pil
 
 ## Execute
 - `python webcam_recorder.py` for the Webcam Recorder GUI
-- `python clip_uploader.py` for uploading clips to a remote server via SFTP
+- `python video_uploader.py` for uploading clips to a remote server via SFTP
 
 Tested on Win11 and [Raspbian Pi OS](https://www.raspberrypi.com/software/operating-systems/)
 
