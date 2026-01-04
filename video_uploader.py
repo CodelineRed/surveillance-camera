@@ -28,7 +28,12 @@ ONLY_TODAY_CLIPS = input('Only upload clips from today (No): ').strip().lower() 
 
 def create_sftp_client(host, port, user, password=None, key_filename=None):
     """Creates and returns an SFTPClient object."""
-    transport = paramiko.Transport((host, port))
+    try:
+        transport = paramiko.Transport((host, port))
+    except Exception as e:
+        print(f"An unexpected error occurred during SFTP transport: {e}")
+        return None, None
+    
     try:
         if key_filename:
             # For key-based authentication
@@ -99,6 +104,9 @@ def remote_directory_exists(sftp_client, remote_path):
     except OSError as e:
         print(f"An OSError occurred: {e}")
         return False
+    except paramiko.SSHException as e:
+        print(f"A SSHException occurred: {e}")
+        return False
     except Exception as e:
         print(f"Error checking remote directory existence '{remote_path}': {e}")
         return False
@@ -117,6 +125,9 @@ def remote_file_exists(sftp_client, remote_path):
         return False
     except OSError as e:
         print(f"An OSError occurred: {e}")
+        return False
+    except paramiko.SSHException as e:
+        print(f"A SSHException occurred: {e}")
         return False
     except Exception as e:
         print(f"Error checking remote file existence '{remote_path}': {e}")
@@ -152,6 +163,9 @@ def main():
                 print("Make sure the parent directory (REMOTE_BASE_DIRECTORY) exists and you have permissions.")
                 sftp_client.close()
                 transport.close()
+                return
+            except Exception as e:
+                print(f"An Exception occurred: {e}")
                 return
         else:
             print(f"Remote directory '{remote_upload_directory}' already exists.")
