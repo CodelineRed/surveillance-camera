@@ -4,7 +4,7 @@ import paramiko
 import time
 from getpass import getpass
 from moviepy import VideoFileClip
-from socket import gaierror
+from socket import gaierror, error
 from stat import S_ISDIR # For checking if remote path is a directory
 
 # --- Configuration ---
@@ -92,15 +92,18 @@ def remote_directory_exists(sftp_client, remote_path):
     try:
         stat_info = sftp_client.stat(remote_path)
         return S_ISDIR(stat_info.st_mode)
+    except error as e:
+        print(f"socket.error was raised: {e}")
+        return False
+    except gaierror as e:
+        print(f"socket.gaierror was raised: {e}")
+        return False
     except IOError as e:
         # If the path does not exist, stat will raise an IOError (FileNotFoundError is a subclass)
         # Check specific error code if needed, but for "does it exist?" checking IOError is often enough.
         if "No such file" in str(e): # Common error message for non-existent path
             return False
         raise # Re-raise other IOErrors
-    except gaierror as e:
-        print(f"A socket.gaierror error occurred: {e}")
-        return False
     except OSError as e:
         print(f"An OSError occurred: {e}")
         return False
@@ -116,13 +119,16 @@ def remote_file_exists(sftp_client, remote_path):
     try:
         sftp_client.stat(remote_path)
         return True
+    except error as e:
+        print(f"socket.error was raised: {e}")
+        return False
+    except gaierror as e:
+        print(f"socket.gaierror was raised: {e}")
+        return False
     except IOError as e:
         if "No such file" in str(e):
             return False
         raise # Re-raise other IOErrors
-    except gaierror as e:
-        print(f"A socket.gaierror error occurred: {e}")
-        return False
     except OSError as e:
         print(f"An OSError occurred: {e}")
         return False
